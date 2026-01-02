@@ -1,4 +1,2 @@
 streamlit
-openai
-pydub
-ffmpeg-python
+openai>=1.0.0
