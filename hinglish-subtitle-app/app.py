@@ -1,24 +1,27 @@
 import streamlit as st
-import openai
 import os
-import tempfile
+from openai import OpenAI
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+st.set_page_config(page_title="Hinglish Subtitle Generator")
 
-st.title("Hinglish Subtitle Generator")
+st.title("🎬 Hindi → Hinglish Subtitle Generator")
 
-file = st.file_uploader("Upload audio/video", type=["mp3","wav","mp4","m4a"])
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-if file:
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(file.read())
-        path = tmp.name
+uploaded_file = st.file_uploader(
+    "Upload Hindi audio/video",
+    type=["mp3", "wav", "mp4"]
+)
 
-    audio = open(path, "rb")
+if uploaded_file:
+    st.success("File uploaded successfully!")
 
-    result = openai.Audio.transcribe(
-        file=audio,
-        model="whisper-1"
-    )
+    if st.button("Generate Hinglish Subtitles"):
+        with st.spinner("Transcribing..."):
+            transcript = client.audio.transcriptions.create(
+                file=uploaded_file,
+                model="gpt-4o-transcribe"
+            )
 
-    st.text_area("Transcript", result["text"], height=300)
+        st.subheader("📝 Hinglish Output")
+        st.text_area("Result", transcript.text, height=300)
